@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏭 Industrial Supervision System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-dark bg-dark sticky-top">
+        <div class="container-fluid">
+            <span class="navbar-brand mb-0 h1">🏭 Industrial Supervision</span>
+            <button class="btn btn-outline-light" onclick="showAddParameterModal()">
+                + Ajouter un paramètre
+            </button>
+        </div>
+    </nav>
+
+    <!-- Conteneur principal -->
+    <div class="container-fluid mt-4 mb-5">
+        <div class="row">
+            <!-- Sidebar -->
+            <div class="col-lg-3 mb-3">
+                <div class="card sticky-top" style="top: 70px;">
+                    <div class="card-header bg-primary text-white">
+                        <h6 class="mb-0">📋 Paramètres surveillés</h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush" id="parameters-list">
+                            <li class="list-group-item text-muted text-center py-4">Chargement...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenu principal -->
+            <div class="col-lg-9">
+                <!-- Statistiques -->
+                <div class="row mb-3">
+                    <div class="col-md-4 mb-3">
+                        <div class="card text-center bg-light">
+                            <div class="card-body">
+                                <h6 class="text-muted mb-2">Paramètres actifs</h6>
+                                <h2 id="active-count" class="text-primary">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card text-center bg-light">
+                            <div class="card-body">
+                                <h6 class="text-muted mb-2">Mesures enregistrées</h6>
+                                <h2 id="measurement-count" class="text-success">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card text-center bg-light">
+                            <div class="card-body">
+                                <h6 class="text-muted mb-2">Alertes</h6>
+                                <h2 id="alert-count" class="text-danger">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zone des graphiques -->
+                <div id="charts-container">
+                    <!-- Graphiques générés dynamiquement -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal pour ajouter/modifier paramètre -->
+    <div class="modal fade" id="parameterModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalTitle">Ajouter un paramètre</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="parameter-form">
+                        <input type="hidden" id="parameter-id">
+                        
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Nom du paramètre</strong></label>
+                            <input type="text" class="form-control" id="parameter-name" placeholder="ex: Température Four 1" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>IP de l'automate</strong></label>
+                            <input type="text" class="form-control" id="parameter-ip" placeholder="192.168.1.10" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Adresse Modbus</strong></label>
+                            <input type="number" class="form-control" id="parameter-address" placeholder="4000" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Unité</strong></label>
+                            <input type="text" class="form-control" id="parameter-unit" placeholder="°C, bar, rpm, etc.">
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label"><strong>Valeur min</strong></label>
+                                <input type="number" step="0.01" class="form-control" id="parameter-min">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label"><strong>Valeur max</strong></label>
+                                <input type="number" step="0.01" class="form-control" id="parameter-max">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Fréquence rafraîchissement (ms)</strong></label>
+                            <input type="number" class="form-control" id="parameter-refresh" value="5000">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="button" class="btn btn-primary" onclick="saveParameter()">Enregistrer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
