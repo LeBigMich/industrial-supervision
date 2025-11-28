@@ -1,11 +1,9 @@
-// Configuration de l'API
-const API_BASE_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:3000/api'
-    : '/api';
+// Configuration de l'API (backend Node)
+const API_BASE_URL = 'http://localhost:3000/api';
 
 class API {
     // ====== PARAMÈTRES ======
-    
+
     static async getParameters() {
         try {
             const response = await fetch(`${API_BASE_URL}/parameters`);
@@ -75,7 +73,9 @@ class API {
 
     static async getMeasurements(parameterId, limit = 100) {
         try {
-            const response = await fetch(`${API_BASE_URL}/measurements/${parameterId}?limit=${limit}`);
+            const response = await fetch(
+                `${API_BASE_URL}/measurements/${parameterId}?limit=${limit}`
+            );
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             return await response.json();
         } catch (error) {
