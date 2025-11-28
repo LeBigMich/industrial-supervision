@@ -36,11 +36,7 @@ CREATE TABLE alerts (
     INDEX idx_triggered (triggered_at DESC)
 );
 
-INSERT INTO parameters (name, plc_ip, modbus_address, unit, refresh_rate, min_value, max_value) 
-VALUES 
-    ('Temperature Four 1', '192.168.1.10', 4000, 'C', 5000, 0, 1000),
-    ('Pression Cuve A', '192.168.1.11', 4001, 'bar', 3000, 0, 10),
-    ('Vitesse Moteur', '192.168.1.12', 4002, 'rpm', 2000, 0, 3000);
+
 
 GRANT ALL PRIVILEGES ON industrial_monitoring.* TO 'industrial_user'@'%';
 FLUSH PRIVILEGES;
