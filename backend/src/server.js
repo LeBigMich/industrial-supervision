@@ -1,29 +1,35 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-const ModbusRTU = require("modbus-serial");
+const ModbusRTU = require('modbus-serial');
 
-const routes = require('./routes');
+
 const dataCollectionService = require('./services/dataCollectionService');
-const db = require('./config/database');   // connexion MySQL2 pool
+const db = require('./config/database'); // pool MySQL2
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middlewares
+
+// ==================== MIDDLEWARES ====================
+
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes externes (si tu en as vraiment besoin, sinon tu peux commenter)
-app.use('/api', routes);
 
-// Santé du serveur
+// ==================== SANTÉ ====================
+
+
 app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date() });
 });
 
+
 // ==================== PARAMÈTRES EN BASE ====================
+
 
 // Récupérer tous les paramètres
 app.get('/api/parameters', async (req, res) => {
@@ -35,6 +41,7 @@ app.get('/api/parameters', async (req, res) => {
     res.status(500).json({ success: false, error: 'Erreur base de données' });
   }
 });
+
 
 // Récupérer un paramètre par id
 app.get('/api/parameters/:id', async (req, res) => {
@@ -50,6 +57,7 @@ app.get('/api/parameters/:id', async (req, res) => {
     res.status(500).json({ success: false, error: 'Erreur base de données' });
   }
 });
+
 
 // Créer un paramètre
 app.post('/api/parameters', async (req, res) => {
@@ -67,7 +75,7 @@ app.post('/api/parameters', async (req, res) => {
         b.min_value,
         b.max_value,
         b.refresh_rate || 5000,
-        1   // actif par défaut
+        1 // actif par défaut
       ]
     );
     const [rows] = await db.query('SELECT * FROM parameters WHERE id = ?', [result.insertId]);
@@ -77,6 +85,7 @@ app.post('/api/parameters', async (req, res) => {
     res.status(500).json({ success: false, error: 'Erreur base de données' });
   }
 });
+
 
 // Mettre à jour un paramètre
 app.put('/api/parameters/:id', async (req, res) => {
@@ -109,6 +118,7 @@ app.put('/api/parameters/:id', async (req, res) => {
   }
 });
 
+
 // Supprimer un paramètre
 app.delete('/api/parameters/:id', async (req, res) => {
   const id = parseInt(req.params.id, 10);
@@ -124,19 +134,22 @@ app.delete('/api/parameters/:id', async (req, res) => {
   }
 });
 
-// ==================== MESURES EN BASE ====================
+
+// ==================== MESURES & ALERTES ====================
+
 
 // Récupérer les mesures d'un paramètre
 app.get('/api/measurements/:parameterId', async (req, res) => {
   const parameterId = parseInt(req.params.parameterId, 10);
   const limit = parseInt(req.query.limit || '50', 10);
 
+
   try {
-    // vérifier que le paramètre existe
     const [params] = await db.query('SELECT id FROM parameters WHERE id = ?', [parameterId]);
     if (params.length === 0) {
       return res.status(404).json({ success: false, error: 'Paramètre introuvable' });
     }
+
 
     const [rows] = await db.query(
       `SELECT * FROM measurements
@@ -146,6 +159,7 @@ app.get('/api/measurements/:parameterId', async (req, res) => {
       [parameterId, limit]
     );
 
+
     res.json({ success: true, data: rows });
   } catch (err) {
     console.error('Erreur GET /api/measurements/:parameterId:', err);
@@ -153,24 +167,52 @@ app.get('/api/measurements/:parameterId', async (req, res) => {
   }
 });
 
+
+// Statistiques globales (pour les tuiles du dashboard)
+app.get('/api/stats', async (req, res) => {
+  try {
+    const [[m]] = await db.query('SELECT COUNT(*) AS nb FROM measurements');
+    const [[a]] = await db.query('SELECT COUNT(*) AS nb FROM alerts');
+    const [[p]] = await db.query('SELECT COUNT(*) AS nb FROM parameters WHERE is_active = 1');
+
+
+    res.json({
+      success: true,
+      measurements: m.nb,
+      alerts: a.nb,
+      activeParameters: p.nb
+    });
+  } catch (err) {
+    console.error('Erreur GET /api/stats:', err);
+    res.status(500).json({ success: false, error: 'Erreur base de données' });
+  }
+});
+
+
 // ==================== MODBUS ====================
 
-// Lecture Modbus TCP (pour le formulaire "Lancer la lecture")
+
+// Lecture Modbus TCP (formulaire "Lancer la lecture")
 app.post('/api/modbus-read', async (req, res) => {
   const { ip, adresse } = req.body;
+
 
   if (!ip || typeof adresse !== 'number') {
     return res.status(400).json({ success: false, error: 'IP ou adresse manquante' });
   }
 
+
   const client = new ModbusRTU();
+
 
   try {
     await client.connectTCP(ip, { port: 502 });
     client.setID(1);
 
+
     const data = await client.readCoils(adresse, 1);
     const etat = data.data[0];
+
 
     res.json({ success: true, etat });
   } catch (err) {
@@ -181,14 +223,16 @@ app.post('/api/modbus-read', async (req, res) => {
   }
 });
 
+
 // ==================== DÉMARRAGE ====================
+
 
 app.listen(PORT, () => {
   console.log(`\n🌐 Serveur démarré sur http://localhost:${PORT}`);
   console.log(`📊 API disponible sur http://localhost:${PORT}/api\n`);
-
   dataCollectionService.start();
 });
+
 
 // Arrêt propre
 process.on('SIGTERM', () => {

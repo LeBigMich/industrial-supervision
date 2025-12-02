@@ -30,7 +30,7 @@ services:
       - "3000:3000"
     environment:
       - PORT=3000
-      - DB_HOST=database
+      - DB_HOST=industrial_db
       - DB_PORT=3306
       - DB_USER=industrial_user
       - DB_PASSWORD=industrial_pass
