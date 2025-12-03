@@ -123,7 +123,3 @@ Adapter les scripts et la configuration Docker selon le contexte (démo, dévelo
 ## 👨‍💻 Auteurs
 
 Projet réalisé dans le cadre d’un travail de développement d’un système de supervision web industriel.  
-
-[8](https://github.com/ikatyang/emoji-cheat-sheet/blob/master/README.md)
-[9](https://github.com/multi-software-co/Emoji-Library-and-Utilities)
-[10](https://github.com/ikatyang/emoji-cheat-sheet)
