@@ -4,6 +4,7 @@ require('dotenv').config();
 const ModbusRTU = require('modbus-serial');
 
 
+
 const dataCollectionService = require('./services/dataCollectionService');
 const db = require('./config/database'); // pool MySQL2
 
@@ -18,6 +19,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use('/api', require('./routes/index'));
 
 
 // ==================== SANTÉ ====================

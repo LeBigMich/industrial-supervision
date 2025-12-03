@@ -270,3 +270,22 @@ async function deleteParameter(id) {
         alert('Erreur: ' + result.error);
     }
 }
+
+async function refreshDashboardStats() {
+  try {
+    const res = await fetch(`${API_BASE_URL}/stats`);
+    const json = await res.json();
+    if (!json.success) return;
+
+    document.getElementById('active-count').textContent = json.activeParameters;
+    document.getElementById('measurement-count').textContent = json.measurements;
+    document.getElementById('alert-count').textContent = json.alerts;
+  } catch (err) {
+    console.error('Erreur refreshDashboardStats:', err);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  refreshDashboardStats();
+  setInterval(refreshDashboardStats, 5000);
+});

@@ -17,24 +17,6 @@
             </button>
         </div>
     </nav>
-<div class="card mt-4">
-  <div class="card-body">
-    <h5 class="card-title">Lecture automate Modbus</h5>
-    <div class="row g-2">
-      <div class="col-md-4">
-        <input id="ip" class="form-control" placeholder="IP automate (ex 172.16.1.24)">
-      </div>
-      <div class="col-md-4">
-        <input id="adresse-logique" class="form-control" placeholder="Adresse logique (ex 505 pour %M505)">
-      </div>
-      <div class="col-md-4">
-        <button id="btn-start-modbus" class="btn btn-primary w-100">
-          Lancer la lecture
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
 
     <!-- Conteneur principal -->
     <div class="container-fluid mt-4 mb-5">
@@ -152,45 +134,5 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <script src="js/api.js"></script>
     <script src="js/app.js"></script>
-    <script>
-let modbusInterval = null;
-
-document.getElementById('btn-start-modbus').addEventListener('click', () => {
-  const ip = document.getElementById('ip').value.trim();
-  const adresseStr = document.getElementById('adresse-logique').value.trim();
-  const adresse = parseInt(adresseStr, 10); // ex 505
-
-  if (!ip || isNaN(adresse)) {
-    alert('Merci de saisir une IP et une adresse valide (ex 505).');
-    return;
-  }
-
-  // Stoppe une éventuelle ancienne boucle
-  if (modbusInterval) clearInterval(modbusInterval);
-
-  // Lecture périodique toutes les secondes
-  modbusInterval = setInterval(() => {
-    fetch('http://localhost:3000/api/modbus-read', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ip, adresse })
-    })
-      .then(r => r.json())
-      .then(data => {
-        if (data.success) {
-          const valeur = data.etat ? 1 : 0; // bool → 0 ou 1
-          console.log('Valeur automate :', valeur);
-
-          // TODO : ici, branche ta logique de graphique
-          // Exemple : updateChart(valeur);
-        } else {
-          console.error('Erreur lecture:', data.error);
-        }
-      })
-      .catch(err => console.error('Erreur fetch:', err));
-  }, 1000);
-});
-</script>
-
 </body>
 </html>
