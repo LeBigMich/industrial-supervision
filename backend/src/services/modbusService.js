@@ -43,6 +43,18 @@ class ModbusService {
         }
     }
 
+async readCoil(ip, address) {
+  try {
+    const client = await this.connect(ip);
+    const data = await client.readCoils(address, 1);
+    const bit = data.data[0];   // true / false
+    return bit ? 1 : 0;         // stocké en 1 ou 0
+  } catch (error) {
+    console.error(`✗ Erreur lecture coil ${address}:`, error.message);
+    return null;
+  }
+}
+
     disconnect(ip) {
         const client = this.clients.get(ip);
         if (client) {
